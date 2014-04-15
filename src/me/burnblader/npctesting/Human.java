@@ -38,7 +38,7 @@ import org.bukkit.inventory.ItemStack;
  
     private List<Integer> ids = new ArrayList<Integer>();
  
-    private void setPrivateField(Class type, Object object, String name, Object value) {
+    private void setPrivateField(@SuppressWarnings("rawtypes") Class type, Object object, String name, Object value) {
     try {
     Field f = type.getDeclaredField(name);
     f.setAccessible(true);
@@ -142,7 +142,6 @@ import org.bukkit.inventory.ItemStack;
     }
     }
  
-    @SuppressWarnings("deprecation")
     public void updateItems(ItemStack hand, ItemStack boots, ItemStack legs, ItemStack chest, ItemStack helmet) {
  
     PacketPlayOutEntityEquipment[] ps = new PacketPlayOutEntityEquipment[]{
