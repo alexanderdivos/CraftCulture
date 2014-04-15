@@ -1,7 +1,9 @@
 package me.mrCookieSlime.CraftCulture;
 
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Villager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class main extends JavaPlugin {
 	
@@ -10,6 +12,28 @@ public class main extends JavaPlugin {
 		System.out.println("[CraftCulture] " + "CraftCulture v" + getDescription().getVersion() + " enabled!");
 		
 		loadConfig();
+		
+		new BotAI(this);
+		
+		// Listeners:
+		
+		new BotSpawnListener(this);
+		
+		// Moving Timer
+		
+		getServer().getScheduler().runTaskTimer(this, new BukkitRunnable() {
+			
+			@Override
+			public void run() {
+				for (Villager v: Villagers.getActiveVillagers()) {
+					if (BotAI.hasMovingTask(v)) {
+						v.teleport(BotAI.getNextPositionToWalk(v));
+					}
+				}
+				
+			}
+		}, 0L, 10L);
+		
 	}
 	
 	@Override

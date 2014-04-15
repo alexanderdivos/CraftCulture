@@ -1,9 +1,12 @@
 package me.mrCookieSlime.CraftCulture;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -15,11 +18,35 @@ import org.bukkit.inventory.ItemStack;
 
 public class BotAI {
 	
+	public static main plugin;
+	
+	public BotAI(main instance) {
+		plugin = instance;
+	}
+	
 	static Map<Villager, List<Location>> moves = new HashMap<Villager, List<Location>>();
 	
 	public static void walkTo(Villager v, Location l) {
+		
+		List<Location> locations = new ArrayList<Location>();
+		
 		Location start = v.getLocation();
 		Location finish = l;
+		
+		moves.put(v, locations);
+	}
+	
+	public static void chat(Villager v, String message) {
+		String msg = plugin.getConfig().getString("messages.chat");
+		msg = msg.replace("%message%", message);
+		Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', msg));
+	}
+	
+	public static void askFor(Villager v, Material m, int amount) {
+		String msg = plugin.getConfig().getString("messages.ask-item");
+		msg = msg.replace("%amount%", String.valueOf(amount));
+		msg = msg.replace("%item%", m.toString().toLowerCase().replace("_", " ") + "/s");
+		chat(v, msg);
 	}
 	
 	public static void breakBlock(Villager v, Block b) {
@@ -76,6 +103,28 @@ public class BotAI {
 		else {
 			walkTo(v, chest.getLocation());
 			depositItem(v, chest, item);
+		}
+	}
+	
+	public static boolean hasMovingTask(Villager v) {
+		return moves.containsKey(v);
+	}
+	
+	public static List<Location> getNextPositions(Villager v) {
+		return moves.get(v);
+	}
+	
+	public static Location getNextPositionToWalk(Villager v) {
+		List<Location> locs = getNextPositions(v);
+		Location next = locs.get(0).clone();
+		locs.remove(0);
+		
+		return next;
+	}
+	
+	public static void getAvailableItems(Villager v, List<Material> types, Map<Material, Integer> inv) {
+		for (Block b: Villagers.getChests(v)) {
+			
 		}
 	}
 

@@ -15,3 +15,8 @@ names:
 - Eric
 - Toby
 - George
+messages:
+  chat: '<%name%> %message%'
+  ask-item: 'Has anyone got %amount% %item%?'
+bots:
+  work-area: 100
