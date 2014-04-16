@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+
+import me.mrCookieSlime.CraftCulture.Utilities.BlockUtils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -13,6 +16,11 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
+import org.bukkit.entity.Animals;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Monster;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
 
@@ -123,8 +131,66 @@ public class BotAI {
 	}
 	
 	public static void getAvailableItems(Villager v, List<Material> types, Map<Material, Integer> inv) {
-		for (Block b: Villagers.getChests(v)) {
-			
+		for (Chest c: BlockUtils.castToChest(Villagers.getChests(v))) {
+			for (ItemStack item: c.getInventory().getContents()) {
+				if (item != null) {
+					if (types.contains(item.getType())) {
+						types.add(item.getType());
+						inv.put(item.getType(), item.getAmount());
+					}
+					else {
+						inv.put(item.getType(), item.getAmount() + inv.get(item.getType()));
+					}
+				}
+			}
+		}
+	}
+	
+	public static Location getCurrentLocation(Villager v) {
+		return Villagers.locations.get(v);
+	}
+	
+	public static List<UUID> getAngryPlayers(Villager v) {
+		return Villagers.angry.get(v);
+	}
+	
+	public static Map<Material, Integer> getResourceTask(Villager v) {
+		return Villagers.resources.get(v);
+	}
+	
+	public static void getNextResourceGoal(Villager v, Material m, Integer amount) {
+		m = Villagers.resourceIndex.get(0);
+		amount = getResourceTask(v).get(m);
+	}
+	
+	public static Map<EntityType, Integer> getDropTask(Villager v) {
+		return Villagers.drops.get(v);
+	}
+	
+	public static void getNextDropGoal(Villager v, EntityType m, Integer amount) {
+		m = Villagers.dropIndex.get(0);
+		amount = getResourceTask(v).get(m);
+	}
+	
+	public static boolean isAngryOn(Villager v, LivingEntity n) {
+		if (n instanceof Player) {
+			return getAngryPlayers(v).contains(n.getUniqueId());
+		}
+		else if (n instanceof Monster){
+			return true;
+		}
+		else if (n instanceof Animals) {
+			EntityType goal = null;
+			getNextDropGoal(v, goal, null);
+			if (goal == n.getType()) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return false;
 		}
 	}
 
