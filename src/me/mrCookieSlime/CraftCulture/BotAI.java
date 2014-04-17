@@ -34,7 +34,13 @@ public class BotAI {
 	
 	static Map<Villager, List<Location>> moves = new HashMap<Villager, List<Location>>();
 	
+	public static void setLocation(Villager v, Location l) {
+		Villagers.locations.put(v, l);
+	}
+	
 	public static void walkTo(Villager v, Location l) {
+		
+		// Still stuck on the Moving Part
 		
 		List<Location> locations = new ArrayList<Location>();
 		
@@ -124,8 +130,20 @@ public class BotAI {
 	
 	public static Location getNextPositionToWalk(Villager v) {
 		List<Location> locs = getNextPositions(v);
-		Location next = locs.get(0).clone();
-		locs.remove(0);
+		
+		Location next = null;
+		if (locs.size() == 0) {
+			moves.remove(v);
+		}
+		else {
+			next = locs.get(0).clone();
+			locs.remove(0);
+			moves.put(v, locs);
+		}
+		
+		if (next != null) {
+			setLocation(v, next);
+		}
 		
 		return next;
 	}
