@@ -15,6 +15,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.EntityType;
@@ -23,6 +24,11 @@ import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
+
+import com.adamki11s.pathing.AStar;
+import com.adamki11s.pathing.AStar.InvalidPathException;
+import com.adamki11s.pathing.PathingResult;
+import com.adamki11s.pathing.Tile;
 
 public class BotAI {
 	
@@ -39,13 +45,45 @@ public class BotAI {
 	}
 	
 	public static void walkTo(Villager v, Location l) {
-		
-		// Still stuck on the Moving Part
-		
 		List<Location> locations = new ArrayList<Location>();
 		
-		Location start = v.getLocation();
-		Location finish = l;
+		Location start = v.getLocation().getBlock().getRelative(BlockFace.DOWN).getLocation();
+		Location finish = l.getBlock().getRelative(BlockFace.DOWN).getLocation();
+		
+		AStar path = null;
+		try {
+			path = new AStar(start, finish, plugin.getConfig().getInt("bots.work-area") * 2);
+		} catch (InvalidPathException e) {
+			System.out.println("Path Generation failed for Villager \"" + v.getCustomName() + "\"");
+			System.out.println("InvalidPathException: " + e.getMessage());
+			System.out.println(e.getCause());
+			
+			if(e.isEndNotSolid()){
+	            System.out.println("End block is not walkable");
+	        }
+	        if(e.isStartNotSolid()){
+	            System.out.println("Start block is not walkable");
+	        }
+		}
+		if (path != null) {
+			 ArrayList<Tile> route = path.iterate();
+		        PathingResult result = path.getPathingResult();
+		        
+		        if (result == PathingResult.SUCCESS)  {
+		        	for (Tile tile: route) {
+		        		locations.add(tile.getLocation(start).getBlock().getRelative(BlockFace.UP).getLocation());
+		        		locations.add(tile.getLocation(start).getBlock().getRelative(BlockFace.UP).getLocation());
+		        		locations.add(tile.getLocation(start).getBlock().getRelative(BlockFace.UP).getLocation());
+		        		locations.add(tile.getLocation(start).getBlock().getRelative(BlockFace.UP).getLocation());
+		        	}
+		        }
+		        else {
+		        	System.out.println("Path Generation failed for Villager \"" + v.getCustomName() + "\"");
+		        }
+		}
+		else {
+			System.out.println("Path Generation failed for Villager \"" + v.getCustomName() + "\"");
+		}
 		
 		moves.put(v, locations);
 	}

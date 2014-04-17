@@ -7,9 +7,11 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 public class main extends JavaPlugin {
 	
@@ -34,26 +36,18 @@ public class main extends JavaPlugin {
 					if (!BotAI.hasMovingTask(v)) {
 						v.teleport(BotAI.getCurrentLocation(v));
 					}
-				}
-				
-			}
-		}, 0L, 1L);
-		
-		getServer().getScheduler().runTaskTimer(this, new BukkitRunnable() {
-			
-			@Override
-			public void run() {
-				for (Villager v: Villagers.getActiveVillagers()) {
-					if (BotAI.hasMovingTask(v)) {
+					else {
 						Location next = BotAI.getNextPositionToWalk(v);
 						if (next != null) {
-							v.teleport(BotAI.getNextPositionToWalk(v));
+							Vector move = new Vector(next.getX() - v.getLocation().getX(), next.getY() - v.getLocation().getY(), next.getZ() - v.getLocation().getZ());
+							move.multiply(0.125);
+							v.setVelocity(move);
 						}
 					}
 				}
 				
 			}
-		}, 0L, 15L);
+		}, 0L, 1L);
 
 		// Attack Timer
 		
@@ -66,7 +60,9 @@ public class main extends JavaPlugin {
 						if (e instanceof LivingEntity) {
 							if (e.getLocation().distance(v.getLocation()) <= 4) {
 								if (BotAI.isAngryOn(v, (LivingEntity) e)) {
+									Bukkit.getPluginManager().callEvent(new EntityDamageEvent(e, DamageCause.ENTITY_ATTACK, 4.0));
 									Bukkit.getPluginManager().callEvent(new EntityDamageByEntityEvent(v, e, DamageCause.ENTITY_ATTACK, 4.0));
+									((LivingEntity) e).damage(4.0);
 								}
 							}
 						}
