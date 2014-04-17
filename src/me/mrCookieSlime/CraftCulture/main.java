@@ -1,7 +1,11 @@
 package me.mrCookieSlime.CraftCulture;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -39,9 +43,15 @@ public class main extends JavaPlugin {
 					else {
 						Location next = BotAI.getNextPositionToWalk(v);
 						if (next != null) {
-							Vector move = new Vector(next.getX() - v.getLocation().getX(), next.getY() - v.getLocation().getY(), next.getZ() - v.getLocation().getZ());
-							move.multiply(0.125);
-							v.setVelocity(move);
+							int height = (int) (next.getY() - v.getLocation().getY());
+							if (height != 0) {
+								v.teleport(next);
+							}
+							else {
+								Vector move = new Vector(next.getX() - v.getLocation().getX(), height, next.getZ() - v.getLocation().getZ());
+								move.multiply(0.125);
+								v.setVelocity(move);
+							}
 						}
 					}
 				}
@@ -79,7 +89,13 @@ public class main extends JavaPlugin {
 			@Override
 			public void run() {
 				for (Villager v: Villagers.getActiveVillagers()) {
-					
+					List<Material> m = new ArrayList<Material>();
+					List<Integer> amount = new ArrayList<Integer>();
+					BotAI.getNextResourceGoal(v, m, amount);
+					System.out.println(amount + "x " + m.toString());
+					if (m.size() > 0 && amount.size() > 0) {
+						BotAI.breakBlock(v, BotAI.findClosestMaterial(v, m.get(0)));
+					}
 				}
 			}
 		}, 0L, 40L);

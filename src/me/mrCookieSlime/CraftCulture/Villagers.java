@@ -56,6 +56,8 @@ public class Villagers {
 		names.put(v, name);
 		locations.put(v, homepoint);
 		angry.put(v, new ArrayList<UUID>());
+		resources.put(v, new HashMap<Material, Integer>());
+		drops.put(v, new HashMap<EntityType, Integer>());
 		
 		return v;
 	}

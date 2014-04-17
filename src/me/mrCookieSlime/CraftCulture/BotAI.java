@@ -44,6 +44,26 @@ public class BotAI {
 		Villagers.locations.put(v, l);
 	}
 	
+	public static void addResourceGoal(Villager v, Material m, int amount) {
+		Map<Material, Integer> resources = getResourceTask(v);
+		
+		if (resources.containsKey(v)) {
+			amount = amount + resources.get(v);
+		}
+		
+		resources.put(m, amount);
+		
+		Villagers.resources.put(v, resources);
+		
+		if (!Villagers.resourceIndex.contains(m)) {
+			Villagers.resourceIndex.add(m);
+		}
+	}
+	
+	public static void goHome(Villager v) {
+		walkTo(v, Villagers.getHomePoint(v));
+	}
+	
 	public static void walkTo(Villager v, Location l) {
 		List<Location> locations = new ArrayList<Location>();
 		
@@ -214,9 +234,11 @@ public class BotAI {
 		return Villagers.resources.get(v);
 	}
 	
-	public static void getNextResourceGoal(Villager v, Material m, Integer amount) {
-		m = Villagers.resourceIndex.get(0);
-		amount = getResourceTask(v).get(m);
+	public static void getNextResourceGoal(Villager v, List<Material> m, List<Integer> amount) {
+		if (Villagers.resourceIndex.size() > 0) {
+			m.set(0, Villagers.resourceIndex.get(0));
+			amount.set(0, getResourceTask(v).get(m.get(0)));
+		}
 	}
 	
 	public static Map<EntityType, Integer> getDropTask(Villager v) {

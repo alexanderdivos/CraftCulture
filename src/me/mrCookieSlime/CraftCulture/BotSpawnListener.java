@@ -2,7 +2,6 @@ package me.mrCookieSlime.CraftCulture;
 
 import java.util.Random;
 
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
@@ -26,11 +25,8 @@ public class BotSpawnListener implements Listener {
 		if (e.getItem() != null) {
 			if (e.getItem().isSimilar(new ItemStack(Material.CARROT_ITEM))) {
 				Villager v = Villagers.spawn(plugin.getConfig().getStringList("names").get(new Random().nextInt(plugin.getConfig().getStringList("names").size())), e.getPlayer().getLocation());
-			
-				Location l = v.getLocation().clone();
-				l.setX(l.getX() + 20);
 				
-				BotAI.walkTo(v, l);
+				BotAI.addResourceGoal(v, Material.LOG, 10);
 			}
 		}
 	}
