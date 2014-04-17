@@ -72,6 +72,18 @@ public class main extends JavaPlugin {
 			}
 		}, 0L, 16L);
 		
+		// Gathering Timer
+		
+		getServer().getScheduler().runTaskTimer(this, new BukkitRunnable() {
+			
+			@Override
+			public void run() {
+				for (Villager v: Villagers.getActiveVillagers()) {
+					
+				}
+			}
+		}, 0L, 40L);
+		
 	}
 	
 	@Override

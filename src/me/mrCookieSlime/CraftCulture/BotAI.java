@@ -249,5 +249,29 @@ public class BotAI {
 			return false;
 		}
 	}
+	
+	public static Block findClosestMaterial(Villager v, Material type) {
+		int radius = plugin.getConfig().getInt("bot.work-area");
+		Location center = Villagers.getHomePoint(v);
+		
+		Block closest = null;
+		
+		for (int x = -(radius); x <= radius; x++) {
+			for (int y = -(radius); y <= radius; y++) {
+				for (int z = -(radius); z <= radius; z++) {
+					if (center.getBlock().getRelative(x, y, z).getType() == type) {
+						if (closest == null) {
+							closest = center.getBlock().getRelative(x, y, z);
+						}
+						else if (center.getBlock().getRelative(x, y, z).getLocation().distance(center) < closest.getLocation().distance(center)) {
+							closest = center.getBlock().getRelative(x, y, z);
+						}
+					}
+				}
+			}
+		}
+		
+		return closest;
+	}
 
 }

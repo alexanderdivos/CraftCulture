@@ -20,3 +20,6 @@ messages:
   ask-item: 'Has anyone got %amount% %item%?'
 bots:
   work-area: 100
+  resource-goals:
+    LOG: 128
+    COBBLESTONE: 128
