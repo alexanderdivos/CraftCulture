@@ -44,6 +44,26 @@ public class BotAI {
 		Villagers.locations.put(v, l);
 	}
 	
+	public static void getCloseTo(Villager v, Location l, int radius) {
+		for (int x = -(radius); x <= radius; x++) {
+			for (int z = -(radius); z <= radius; z++) {
+				for (int y = 0; y < l.getWorld().getMaxHeight(); y++) {
+					Block current = l.getBlock().getRelative(x, y, z);
+					if (current.getType().isSolid() 
+						&& l.getBlock().getRelative(x, y + 1, z).getType() == Material.AIR
+						&& l.getBlock().getRelative(x, y + 2, z).getType() == Material.AIR) {
+						if (current.getRelative(BlockFace.UP).getLocation().distanceSquared(l) <= radius) {
+							
+							walkTo(v, current.getRelative(BlockFace.UP).getLocation());
+							
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
+	
 	public static void addResourceGoal(Villager v, Material m, int amount) {
 		Map<Material, Integer> resources = getResourceTask(v);
 		
@@ -95,6 +115,10 @@ public class BotAI {
 		        		locations.add(tile.getLocation(start).getBlock().getRelative(BlockFace.UP).getLocation());
 		        		locations.add(tile.getLocation(start).getBlock().getRelative(BlockFace.UP).getLocation());
 		        		locations.add(tile.getLocation(start).getBlock().getRelative(BlockFace.UP).getLocation());
+		        		locations.add(tile.getLocation(start).getBlock().getRelative(BlockFace.UP).getLocation());
+		        		locations.add(tile.getLocation(start).getBlock().getRelative(BlockFace.UP).getLocation());
+		        		locations.add(tile.getLocation(start).getBlock().getRelative(BlockFace.UP).getLocation());
+		        		locations.add(tile.getLocation(start).getBlock().getRelative(BlockFace.UP).getLocation());
 		        	}
 		        }
 		        else {
@@ -122,28 +146,37 @@ public class BotAI {
 	}
 	
 	public static void breakBlock(Villager v, Block b) {
-		if (v.getLocation().distanceSquared(b.getLocation()) <= 4) {
-			b.getWorld().playEffect(b.getLocation(), Effect.STEP_SOUND, b.getType());
-			b.setType(Material.AIR);
-			for (ItemStack item: b.getDrops()) {
-				depositItem(v, getAvailableChest(v), item);
+		if (b != null) {
+			if (v.getLocation().distanceSquared(b.getLocation()) <= 4) {
+				if (plugin.getConfig().getBoolean("bots.log-activity")) {
+					System.out.println(Villagers.getName(v) + " just broke 1 " + b.getType().toString());
+				}
+				b.getWorld().playEffect(b.getLocation(), Effect.STEP_SOUND, b.getType());
+				b.setType(Material.AIR);
+				for (ItemStack item: b.getDrops()) {
+					depositItem(v, getAvailableChest(v), item);
+				}
 			}
-		}
-		else {
-			walkTo(v, b.getLocation());
-			breakBlock(v, b);
+			else {
+				if (!hasMovingTask(v)) {
+					getCloseTo(v, b.getLocation(), 4);
+				}
+			}
 		}
 	}
 	
 	@SuppressWarnings("deprecation")
 	public static void placeBlock(Villager v, Material block, byte data, Location l) {
+		if (plugin.getConfig().getBoolean("bots.log-activity")) {
+			System.out.println(Villagers.getName(v) + " just placed 1 " + block.toString());
+		}
 		if (v.getLocation().distanceSquared(l) <= 4) {
 			l.getBlock().setType(block);
 			l.getBlock().setData(data);
 			l.getWorld().playEffect(l, Effect.STEP_SOUND, block);
 		}
 		else {
-			walkTo(v, l);
+			getCloseTo(v, l, 4);
 			placeBlock(v, block, data, l);
 		}
 	}
@@ -173,7 +206,7 @@ public class BotAI {
 			chest.getWorld().playSound(chest.getLocation(), Sound.CHEST_CLOSE, 1, 1);
 		}
 		else {
-			walkTo(v, chest.getLocation());
+			getCloseTo(v, chest.getLocation(), 4);
 			depositItem(v, chest, item);
 		}
 	}
@@ -234,10 +267,21 @@ public class BotAI {
 		return Villagers.resources.get(v);
 	}
 	
-	public static void getNextResourceGoal(Villager v, List<Material> m, List<Integer> amount) {
+	public static Material getNextResourceGoal(Villager v) {
 		if (Villagers.resourceIndex.size() > 0) {
-			m.set(0, Villagers.resourceIndex.get(0));
-			amount.set(0, getResourceTask(v).get(m.get(0)));
+			return Villagers.resourceIndex.get(0);
+		}
+		else {
+			return null;
+		}
+	}
+	
+	public static int getResourceAmount(Villager v, Material m) {
+		if (Villagers.resourceIndex.size() > 0) {
+			return Villagers.resources.get(v).get(m);
+		}
+		else {
+			return 0;
 		}
 	}
 	
@@ -273,7 +317,7 @@ public class BotAI {
 	}
 	
 	public static Block findClosestMaterial(Villager v, Material type) {
-		int radius = plugin.getConfig().getInt("bot.work-area");
+		int radius = plugin.getConfig().getInt("bots.work-area");
 		Location center = Villagers.getHomePoint(v);
 		
 		Block closest = null;
@@ -285,7 +329,7 @@ public class BotAI {
 						if (closest == null) {
 							closest = center.getBlock().getRelative(x, y, z);
 						}
-						else if (center.getBlock().getRelative(x, y, z).getLocation().distance(center) < closest.getLocation().distance(center)) {
+						else if (center.getBlock().getRelative(x, y, z).getLocation().distanceSquared(center) < closest.getLocation().distanceSquared(center)) {
 							closest = center.getBlock().getRelative(x, y, z);
 						}
 					}
