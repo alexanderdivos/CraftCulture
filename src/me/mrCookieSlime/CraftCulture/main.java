@@ -47,7 +47,7 @@ public class main extends JavaPlugin {
 							}
 							else {
 								Vector move = new Vector(next.getX() - v.getLocation().getX(), height, next.getZ() - v.getLocation().getZ());
-								move.multiply(0.0625);
+								move.multiply(0.125);
 								v.setVelocity(move);
 							}
 						}
@@ -55,7 +55,7 @@ public class main extends JavaPlugin {
 				}
 				
 			}
-		}, 0L, 1L);
+		}, 0L, 2L);
 
 		// Attack Timer
 		
@@ -68,9 +68,12 @@ public class main extends JavaPlugin {
 						if (e instanceof LivingEntity) {
 							if (e.getLocation().distance(v.getLocation()) <= 4) {
 								if (BotAI.isAngryOn(v, (LivingEntity) e)) {
-									Bukkit.getPluginManager().callEvent(new EntityDamageEvent(e, DamageCause.ENTITY_ATTACK, 4.0));
+									EntityDamageEvent event = new EntityDamageEvent(e, DamageCause.ENTITY_ATTACK, 4.0);
+									Bukkit.getPluginManager().callEvent(event);
 									Bukkit.getPluginManager().callEvent(new EntityDamageByEntityEvent(v, e, DamageCause.ENTITY_ATTACK, 4.0));
-									((LivingEntity) e).damage(4.0);
+									if (!event.isCancelled()) {
+										((LivingEntity) e).damage(4.0);
+									}
 								}
 							}
 						}
@@ -78,7 +81,7 @@ public class main extends JavaPlugin {
 				}
 				
 			}
-		}, 0L, 16L);
+		}, 0L, 20L);
 		
 		// Gathering Timer
 		
@@ -94,9 +97,16 @@ public class main extends JavaPlugin {
 					if (m != Material.AIR && amount > 0) {
 						BotAI.breakBlock(v, BotAI.findClosestMaterial(v, m));
 					}
+					
+					if (BotAI.getAvailableChest(v) == null) {
+						if (BotAI.hasItemAvailable(v, Material.LOG) >= 2) {
+							BotAI.placeBlock(v, Material.CHEST, (byte) 0, BotAI.findClosePlace(v, 6));
+						}
+					}
+					
 				}
 			}
-		}, 0L, 40L);
+		}, 0L, 50L);
 		
 	}
 	

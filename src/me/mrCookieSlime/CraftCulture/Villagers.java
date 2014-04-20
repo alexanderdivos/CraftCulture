@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Villager;
+import org.bukkit.inventory.ItemStack;
 
 public class Villagers {
 	
@@ -25,6 +26,7 @@ public class Villagers {
 	static List<Material> resourceIndex = new ArrayList<Material>();
 	static Map<Villager, Map<EntityType, Integer>> drops = new HashMap<Villager, Map<EntityType,Integer>>();
 	static List<EntityType> dropIndex = new ArrayList<EntityType>();
+	static Map<Villager, ItemStack> item = new HashMap<Villager, ItemStack>();
 	
 	public static List<Villager> getActiveVillagers() {
 		return active;
@@ -58,6 +60,8 @@ public class Villagers {
 		angry.put(v, new ArrayList<UUID>());
 		resources.put(v, new HashMap<Material, Integer>());
 		drops.put(v, new HashMap<EntityType, Integer>());
+		inventory.put(v, new ArrayList<Block>());
+		item.put(v, null);
 		
 		return v;
 	}

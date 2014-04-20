@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import me.mrCookieSlime.CraftCulture.Utilities.BlockAdjacents;
 import me.mrCookieSlime.CraftCulture.Utilities.BlockUtils;
 
 import org.bukkit.Bukkit;
@@ -42,6 +43,28 @@ public class BotAI {
 	
 	public static void setLocation(Villager v, Location l) {
 		Villagers.locations.put(v, l);
+	}
+	
+	public static Location findClosePlace(Villager v, int radius) {
+		
+		Location l = Villagers.getHomePoint(v);
+		
+		Location place = null;
+		
+		for (int x = -(radius); x <= radius; x++) {
+			for (int z = -(radius); z <= radius; z++) {
+				for (int y = 0; y < l.getWorld().getMaxHeight(); y++) {
+					Block current = l.getBlock().getRelative(x, y, z);
+					if (current.getType().isSolid() && l.getBlock().getRelative(x, y + 1, z).getType() == Material.AIR && !(BlockAdjacents.hasAdjacentMaterial(current.getRelative(BlockFace.UP), Material.CHEST))) {
+						if (current.getRelative(BlockFace.UP).getLocation().distanceSquared(l) <= radius) {
+							place = current.getRelative(BlockFace.UP).getLocation();
+							break;
+						}
+					}
+				}
+			}
+		}
+		return place;
 	}
 	
 	public static void getCloseTo(Villager v, Location l, int radius) {
@@ -154,7 +177,21 @@ public class BotAI {
 				b.getWorld().playEffect(b.getLocation(), Effect.STEP_SOUND, b.getType());
 				b.setType(Material.AIR);
 				for (ItemStack item: b.getDrops()) {
-					depositItem(v, getAvailableChest(v), item);
+					if (getAvailableChest(v) != null) {
+						depositItem(v, getAvailableChest(v), item);
+					}
+					else {
+						ItemStack ItemInHand = getCarriedItem(v);
+						if (ItemInHand != null) {
+							if (ItemInHand.getType() == item.getType() && ItemInHand.getAmount() < ItemInHand.getType().getMaxStackSize()) {
+								ItemInHand.setAmount(ItemInHand.getAmount() + item.getAmount());
+								Villagers.item.put(v, ItemInHand);
+							}
+						}
+						else {
+							Villagers.item.put(v, item);
+						}
+					}
 				}
 			}
 			else {
@@ -167,17 +204,18 @@ public class BotAI {
 	
 	@SuppressWarnings("deprecation")
 	public static void placeBlock(Villager v, Material block, byte data, Location l) {
-		if (plugin.getConfig().getBoolean("bots.log-activity")) {
-			System.out.println(Villagers.getName(v) + " just placed 1 " + block.toString());
-		}
 		if (v.getLocation().distanceSquared(l) <= 4) {
+			if (plugin.getConfig().getBoolean("bots.log-activity")) {
+				System.out.println(Villagers.getName(v) + " just placed 1 " + block.toString());
+			}
 			l.getBlock().setType(block);
 			l.getBlock().setData(data);
 			l.getWorld().playEffect(l, Effect.STEP_SOUND, block);
 		}
 		else {
-			getCloseTo(v, l, 4);
-			placeBlock(v, block, data, l);
+			if (!hasMovingTask(v)) {
+				getCloseTo(v, l, 4);
+			}
 		}
 	}
 	
@@ -338,6 +376,39 @@ public class BotAI {
 		}
 		
 		return closest;
+	}
+	
+	public static ItemStack getCarriedItem(Villager v) {
+		return Villagers.item.get(v);
+	}
+	
+	public static int hasItemAvailable(Villager v, Material type) {
+		
+		int amount = 0;
+		
+		for (Chest c: BlockUtils.castToChest(Villagers.getChests(v))) {
+			for (ItemStack item: c.getInventory().getContents()) {
+				if (item != null) {
+					if (item.getType() == type) {
+						amount = amount + item.getAmount();
+					}
+				}
+			}
+		}
+		
+		ItemStack item = getCarriedItem(v);
+		
+		if (item != null) {
+			if (item.getType() == type) {
+				amount = amount + item.getAmount();
+			}
+		}
+		
+		return amount;
+	}
+	
+	public static void scanArea(Villager v) {
+		
 	}
 
 }
