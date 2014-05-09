@@ -15,6 +15,7 @@ import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
@@ -98,8 +99,8 @@ public class BotAI {
 		
 		Villagers.resources.put(v, resources);
 		
-		if (!Villagers.resourceIndex.contains(m)) {
-			Villagers.resourceIndex.add(m);
+		if (!Villagers.resourceIndex.get(v).contains(m)) {
+			Villagers.resourceIndex.get(v).add(m);
 		}
 	}
 	
@@ -307,7 +308,7 @@ public class BotAI {
 	
 	public static Material getNextResourceGoal(Villager v) {
 		if (Villagers.resourceIndex.size() > 0) {
-			return Villagers.resourceIndex.get(0);
+			return Villagers.resourceIndex.get(v).get(0);
 		}
 		else {
 			return null;
@@ -328,7 +329,7 @@ public class BotAI {
 	}
 	
 	public static void getNextDropGoal(Villager v, EntityType m, Integer amount) {
-		m = Villagers.dropIndex.get(0);
+		m = Villagers.dropIndex.get(v).get(0);
 		amount = getResourceTask(v).get(m);
 	}
 	
@@ -354,6 +355,7 @@ public class BotAI {
 		}
 	}
 	
+	@Deprecated
 	public static Block findClosestMaterial(Villager v, Material type) {
 		int radius = plugin.getConfig().getInt("bots.work-area");
 		Location center = Villagers.getHomePoint(v);
@@ -407,7 +409,43 @@ public class BotAI {
 		return amount;
 	}
 	
-	public static void scanArea(Villager v) {
+	public static void scanArea(Villager v, Location l, int radius) {
+		if (Villagers.mapped.size() > 0) {
+			Villagers.map.clear();
+			Villagers.mapping.clear();
+			Villagers.mapped.clear();
+		}
+		
+		World world = l.getWorld();
+		Location current;
+		
+		for (int x = -(radius); x <= radius; x++) {
+			for (int y = -(radius); y <= radius; y++) {
+				for (int z = -(radius); z <= radius; z++) {
+					current = new Location(world, x, y, z);
+					List<Location> list = new ArrayList<Location>();
+					if (Villagers.mapped.containsKey(v)) {
+						list = Villagers.mapped.get(v);
+					}
+					list.add(current);
+					Villagers.mapped.put(v, list);
+					Map<Location, Material> map = new HashMap<Location, Material>();
+					map.put(current, current.getBlock().getType());
+					Villagers.mapping.put(v, map);
+				}
+			}
+		}
+		
+		for (Location loc: Villagers.mapped.get(v)) {
+			List<Material> list = new ArrayList<Material>();
+			if (Villagers.foundmats.containsKey(v)) {
+				list = Villagers.foundmats.get(v);
+			}
+			if (list.contains(loc.getBlock().getType()) && loc.getBlock().getType() != null && loc.getBlock().getType() != Material.AIR) {
+				list.add(loc.getBlock().getType());
+			}
+			Villagers.foundmats.put(v, list);
+		}
 		
 	}
 

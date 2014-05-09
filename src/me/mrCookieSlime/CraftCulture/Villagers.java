@@ -23,10 +23,14 @@ public class Villagers {
 	static Map<Villager, Location> locations = new HashMap<Villager, Location>();
 	static Map<Villager, List<UUID>> angry = new HashMap<Villager, List<UUID>>();
 	static Map<Villager, Map<Material, Integer>> resources = new HashMap<Villager, Map<Material,Integer>>();
-	static List<Material> resourceIndex = new ArrayList<Material>();
+	static Map<Villager, List<Material>> resourceIndex = new HashMap<Villager, List<Material>>();
 	static Map<Villager, Map<EntityType, Integer>> drops = new HashMap<Villager, Map<EntityType,Integer>>();
-	static List<EntityType> dropIndex = new ArrayList<EntityType>();
+	static Map<Villager, List<EntityType>> dropIndex = new HashMap<Villager, List<EntityType>>();
 	static Map<Villager, ItemStack> item = new HashMap<Villager, ItemStack>();
+	static Map<Villager, Map<Location, Material>> mapping = new HashMap<Villager, Map<Location,Material>>();
+	static Map<Material, List<Location>> map = new HashMap<Material, List<Location>>();
+	static Map<Villager, List<Location>> mapped = new HashMap<Villager, List<Location>>();
+	static Map<Villager, List<Material>> foundmats = new HashMap<Villager, List<Material>>();
 	
 	public static List<Villager> getActiveVillagers() {
 		return active;
