@@ -1,5 +1,13 @@
 package me.mrCookieSlime.CraftCulture;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import me.mrCookieSlime.CSCoreLib.Configuration.ConfigSetup;
+import me.mrCookieSlime.CSCoreLib.general.Server.Plugins;
+import me.mrCookieSlime.CraftCulture.Deprecated.BotAI;
+import me.mrCookieSlime.CraftCulture.Deprecated.Villagers;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,39 +24,37 @@ import org.bukkit.util.Vector;
 
 public class main extends JavaPlugin {
 	
+	List<Bot> bots = new ArrayList<Bot>();
+	
 	@Override
 	public void onEnable() {
-		System.out.println("[CraftCulture] " + "CraftCulture v" + getDescription().getVersion() + " enabled!");
-		
-		loadConfig();
-		new BotAI(this);
+		Plugins.load(this);
+		ConfigSetup.setup(this);
 		
 		// Listeners:
-		
 		new BotSpawnListener(this);
 		new BotDamageListener(this);
 		
 		// Moving Timer
-		
 		getServer().getScheduler().runTaskTimer(this, new BukkitRunnable() {
 			
 			@Override
 			public void run() {
-				for (Villager v: Villagers.getActiveVillagers()) {
-					if (!BotAI.hasMovingTask(v)) {
-						v.teleport(BotAI.getCurrentLocation(v));
+				for (Bot bot: bots) {
+					if (!bot.hasMovingTask()) {
+						bot.stay();
 					}
 					else {
-						Location next = BotAI.getNextPositionToWalk(v);
+						Location next = bot.getNextDestination();
 						if (next != null) {
-							int height = (int) (next.getY() - v.getLocation().getY());
+							int height = (int) (next.getY() - bot.getCurrentLocation().getY());
 							if (height != 0) {
-								v.teleport(next);
+								bot.teleport(next);
 							}
 							else {
-								Vector move = new Vector(next.getX() - v.getLocation().getX(), height, next.getZ() - v.getLocation().getZ());
+								Vector move = new Vector(next.getX() - bot.getCurrentLocation().getX(), height, next.getZ() - bot.getCurrentLocation().getZ());
 								move.multiply(0.125);
-								v.setVelocity(move);
+								bot.getEntity().setVelocity(move);
 							}
 						}
 					}

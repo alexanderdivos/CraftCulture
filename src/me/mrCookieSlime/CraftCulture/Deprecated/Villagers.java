@@ -1,4 +1,4 @@
-package me.mrCookieSlime.CraftCulture;
+package me.mrCookieSlime.CraftCulture.Deprecated;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,6 +13,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
 
+@Deprecated
 public class Villagers {
 	
 	static List<Villager> active = new ArrayList<Villager>();

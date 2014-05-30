@@ -1,22 +1,18 @@
-package me.mrCookieSlime.CraftCulture.Utilities;
+package me.mrCookieSlime.CSCoreLib.general.Recipe;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
-import org.bukkit.Location;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.Dropper;
-import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 
 public class RecipeCalculator {
-	
-	public static List<Material> BUCKETS = new ArrayList<Material>();
 	
 	public static List<ItemStack> getIngredients(Recipe recipe) {
 	    List<ItemStack> ingredients = new ArrayList<ItemStack>();
@@ -69,48 +65,17 @@ public class RecipeCalculator {
 	    return ingredients;
 	  }
 	
-	
-	public static ItemStack getItem(Location l) {
-		ItemStack item = null;
-		
-		if (l.getBlock().getRelative(BlockFace.UP).getType() == Material.DROPPER) {
-			item = ((Dropper) l.getBlock().getRelative(BlockFace.UP).getState()).getInventory().getItem(0);
+	public static ItemStack getSmeltedOutput(Material type) {
+		ItemStack result = null;
+		Iterator<Recipe> iter = Bukkit.recipeIterator();
+		while (iter.hasNext()) {
+		   Recipe recipe = iter.next();
+		   if (!(recipe instanceof FurnaceRecipe)) continue;
+		   if (((FurnaceRecipe) recipe).getInput().getType() != type) continue;
+		   result = recipe.getResult();
+		   break;
 		}
 		
-		return item;
-    }
-	
-	@SuppressWarnings("deprecation")
-	public static boolean removeItem(Inventory inv, Material type, int data, int amount)
-	  {
-	    int remd = 0;
-
-	    HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
-	    for (int i = 0; i < inv.getSize(); i++) {
-	      ItemStack s = inv.getItem(i);
-
-	      if (s != null)
-	      {
-	        if (remd < amount)
-	        {
-	          if ((s.getType().equals(type)) && ((data == -1) || (data == s.getData().getData()))) {
-	            int take = Math.min(s.getAmount(), amount - remd);
-	            map.put(Integer.valueOf(i), Integer.valueOf(take));
-	            remd += take;
-
-	            if (take == s.getAmount())
-	              inv.setItem(i, null);
-	            else {
-	              s.setAmount(s.getAmount() - take);
-	            }
-	          }
-	        }
-	      }
-	    }
-	    if (remd != amount) {
-	      return false;
-	    }
-	    return true;
-	  }
-
+		return result;
+	}
 }

@@ -1,33 +1,13 @@
-package me.mrCookieSlime.CraftCulture.Utilities;
+package me.mrCookieSlime.CSCoreLib.general.Block;
 
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 
 public class BlockAdjacents {
 	
 	public static Block[] getAdjacentBlocks(Block b) {
-		
-		
-		Location l = b.getLocation();
-		
-		Location l1 = b.getLocation();
-		Location l2 = b.getLocation();
-		Location l3 = b.getLocation();
-		Location l4 = b.getLocation();
-		Location l5 = b.getLocation();
-		Location l6 = b.getLocation();
-		
-		l1.setY(l.getY() + 1.0D);
-		l2.setY(l.getY() - 1.0D);
-		l3.setZ(l.getZ() + 1.0D);
-		l4.setZ(l.getZ() - 1.0D);
-		l5.setX(l.getX() + 1.0D);
-		l6.setX(l.getX() - 1.0D);
-		
-		Block[] Adjacents = {l1.getBlock(), l2.getBlock(), l3.getBlock(), l4.getBlock(), l5.getBlock(), l6.getBlock()};
-		
-		return Adjacents;
+		return new Block[] {b.getRelative(BlockFace.UP), b.getRelative(BlockFace.DOWN), b.getRelative(BlockFace.NORTH), b.getRelative(BlockFace.EAST), b.getRelative(BlockFace.SOUTH), b.getRelative(BlockFace.WEST)};
 	}
 	
 	public static boolean hasAdjacentMaterial(Block b, Material m) {
@@ -40,14 +20,14 @@ public class BlockAdjacents {
 		}
 		return bo;
 	}
+	
 	public static boolean hasMaterialOnBothSides(Block b, Material m) {
 		boolean bo = false;
-		Block[] adjacents = getAdjacentBlocks(b);
 		
-		if (adjacents[2].getType() == m && adjacents[3].getType() == m) {
+		if (b.getRelative(BlockFace.NORTH).getType() == m && b.getRelative(BlockFace.SOUTH).getType() == m) {
 			bo = true;
 		}
-		else if (adjacents[4].getType() == m && adjacents[5].getType() == m) {
+		else if (b.getRelative(BlockFace.EAST).getType() == m && b.getRelative(BlockFace.WEST).getType() == m) {
 			bo = true;
 		}
 		return bo;
@@ -63,11 +43,20 @@ public class BlockAdjacents {
 		return bo;
 	}
 	
-	public static boolean hasMaterialOnTop(Block b, Material m) {
+	public static boolean hasMaterialOnSide(Block b, Material m) {
 		boolean bo = false;
 		Block[] adjacents = getAdjacentBlocks(b);
 		
-		if (adjacents[0].getType() == m) {
+		if (adjacents[2].getType() == m || adjacents[3].getType() == m || adjacents[4].getType() == m || adjacents[5].getType() == m) {
+			bo = true;
+		}
+		return bo;
+	}
+	
+	public static boolean hasMaterialOnTop(Block b, Material m) {
+		boolean bo = false;
+		
+		if (b.getRelative(BlockFace.UP).getType() == m) {
 			bo = true;
 		}
 		return bo;

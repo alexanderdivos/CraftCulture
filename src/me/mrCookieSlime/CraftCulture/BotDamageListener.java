@@ -1,5 +1,7 @@
 package me.mrCookieSlime.CraftCulture;
 
+import me.mrCookieSlime.CraftCulture.Deprecated.Villagers;
+
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

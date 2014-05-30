@@ -1,4 +1,4 @@
-package me.mrCookieSlime.CraftCulture;
+package me.mrCookieSlime.CraftCulture.Deprecated;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import me.mrCookieSlime.CraftCulture.Utilities.BlockAdjacents;
+import me.mrCookieSlime.CSCoreLib.general.Block.BlockAdjacents;
+import me.mrCookieSlime.CraftCulture.main;
 import me.mrCookieSlime.CraftCulture.Utilities.BlockUtils;
 
 import org.bukkit.Bukkit;
@@ -32,6 +33,7 @@ import com.adamki11s.pathing.AStar.InvalidPathException;
 import com.adamki11s.pathing.PathingResult;
 import com.adamki11s.pathing.Tile;
 
+@Deprecated
 public class BotAI {
 	
 	public static main plugin;
@@ -203,7 +205,6 @@ public class BotAI {
 		}
 	}
 	
-	@SuppressWarnings("deprecation")
 	public static void placeBlock(Villager v, Material block, byte data, Location l) {
 		if (v.getLocation().distanceSquared(l) <= 4) {
 			if (plugin.getConfig().getBoolean("bots.log-activity")) {

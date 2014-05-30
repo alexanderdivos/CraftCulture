@@ -2,6 +2,9 @@ package me.mrCookieSlime.CraftCulture;
 
 import java.util.Random;
 
+import me.mrCookieSlime.CraftCulture.Deprecated.BotAI;
+import me.mrCookieSlime.CraftCulture.Deprecated.Villagers;
+
 import org.bukkit.Material;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
