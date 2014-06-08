@@ -2,17 +2,27 @@ package me.mrCookieSlime.CraftCulture;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import me.mrCookieSlime.CSCoreLib.Configuration.Config;
+import me.mrCookieSlime.CSCoreLib.general.Block.BlockBreaker;
+import me.mrCookieSlime.CSCoreLib.general.Inventory.InvUtils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.Chest;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import com.adamki11s.pathing.AStar;
 import com.adamki11s.pathing.AStar.InvalidPathException;
@@ -26,10 +36,23 @@ public class Bot {
 	Location l;
 	List<Location> moves;
 	Location origin;
+	List<Chest> chests;
+	Inventory inventory;
+	List<Goal> goals;
+	Map<UUID, Integer> playerReputation;
+	List<UUID> blacklist;
+	
+	List<ItemStack> supply;
 	
 	public Bot(String name) {
 		this.name = name;
 		this.moves = new ArrayList<Location>();
+		this.chests = new ArrayList<Chest>();
+		this.goals = new ArrayList<Goal>();
+		this.playerReputation = new HashMap<UUID, Integer>();
+		this.blacklist = new ArrayList<UUID>();
+		this.supply = new ArrayList<ItemStack>();
+		this.inventory = Bukkit.createInventory(null, 54);
 	}
 	
 	public String getName() {
@@ -48,10 +71,21 @@ public class Bot {
 		return this.origin;
 	}
 	
-	public void spawn(Location l) {
+	public void spawn(Location l, Block chest) {
 		this.l = l;
-		this.bot = (LivingEntity) l.getWorld().spawnEntity(l, EntityType.VILLAGER);
+		LivingEntity entity = (LivingEntity) l.getWorld().spawnEntity(l, EntityType.VILLAGER);
+		entity.setMaxHealth(100d);
+		entity.setHealth(100d);
+		entity.setCustomNameVisible(true);
+		entity.setCustomName(this.name);
+		this.bot = entity;
 		this.origin = l;
+		this.chests.add((Chest) chest.getState());
+		for (String mission: new Config(new File("plugins/CraftCulture/config.yml")).getStringList("bots.goals")) {
+			this.goals.add(new Goal(Material.getMaterial(mission.split(";")[1]), Integer.parseInt(mission.split(";")[0])));
+		}
+		Landscape.mapOut(l, 40);
+		CraftCulture.bots.add(this);
 	}
 	
 	public void teleport(Location l) {
@@ -70,7 +104,7 @@ public class Bot {
 	public Location getNextDestination() {
 		Location next = null;
 		if (this.moves.size() > 0) {
-			next = this.moves.get(0);
+			next = this.moves.get(0).clone();
 			this.moves.remove(0);
 		}
 		
@@ -135,5 +169,50 @@ public class Bot {
 		String type = m.toString().toLowerCase().replace("_", " ");
 		format = format.replace("%item%", Character.toUpperCase(type.charAt(0)) + type.substring(1) + "/s ");
 		chat(format);
+	}
+	
+	public void giveItem(ItemStack item) {
+		if (InvUtils.fits(inventory, item)) {
+			inventory.addItem(item);
+			supply.add(item);
+		}
+	}
+	
+	public void depositItem(ItemStack item) {
+		for (Chest c: chests) {
+			if (InvUtils.fits(c.getInventory(), item)) {
+				c.getInventory().addItem(item);
+				inventory.remove(item);
+			}
+		}
+	}
+	
+	public int getReputation(Player p) {
+		if (playerReputation.containsKey(p.getUniqueId())) {
+			return playerReputation.get(p.getUniqueId());
+		}
+		else {
+			playerReputation.put(p.getUniqueId(), 0);
+			return 0;
+		}
+	}
+	
+	public boolean hates(Player p) {
+		return this.blacklist.contains(p.getUniqueId());
+	}
+	
+	public List<Goal> listGoals() {
+		return this.goals;
+	}
+	
+	public List<ItemStack> getSupplies() {
+		return this.supply;
+	}
+	
+	public void breakBlock(Block b) {
+		for (ItemStack drop: b.getDrops()) {
+			giveItem(drop);
+		}
+		BlockBreaker.nullify(b);
 	}
 }
