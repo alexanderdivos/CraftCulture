@@ -42,5 +42,20 @@ public class LocationCalculator {
 		}
 		return place;
 	}
+	
+	public static Location getClosest(Location start, List<Location> locs) {
+		Location closest = null;
+		
+		for (Location l: locs) {
+			if (closest == null) {
+				closest = l;
+			}
+			else if (closest.distanceSquared(start) < l.distanceSquared(start)) {
+				closest = l;
+			}
+		}
+		
+		return closest;
+	}
 
 }

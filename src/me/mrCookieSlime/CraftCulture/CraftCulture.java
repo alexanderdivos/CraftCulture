@@ -63,22 +63,24 @@ public class CraftCulture extends JavaPlugin {
 						int found = 0;
 						for (ItemStack item: bot.getSupplies()) {
 							if (item.getType() == goal.getType()) {
-								found =+ item.getAmount();
+								found = found + item.getAmount();
 							}
 						}
 						if (found < goal.getAmount()) {
 							if (Landscape.getMap().containsKey(goal.getType())) {
-								bot.walkTo(LocationCalculator.findCloseLocationTo(Landscape.getMap().get(goal.getType()).get(0), 4));
-								bot.breakBlock(Landscape.getMap().get(goal.getType()).get(0).getBlock());
+								Location target = LocationCalculator.getClosest(bot.getCurrentLocation(), Landscape.getMap().get(goal.getType()));
+								bot.walkTo(LocationCalculator.findCloseLocationTo(target, 4));
+								bot.breakBlock(target.getBlock());
 								List<Location> locs = Landscape.getMap().get(goal.getType());
 								if (locs.size() == 1) {
 									Landscape.getMap().remove(goal.getType());
 								}
 								else {
-									locs.remove(0);
+									locs.remove(target);
 									Landscape.getMap().put(goal.getType(), locs);
 								}
 							}
+							break;
 						}
 					}
 				}
@@ -102,6 +104,15 @@ public class CraftCulture extends JavaPlugin {
 			}
 		}
 		return false;
+	}
+	
+	public static Bot getBot(LivingEntity n) {
+		for (Bot bot: listBots()) {
+			if (bot.getEntity() == n) {
+				return bot;
+			}
+		}
+		return null;
 	}
 
 }

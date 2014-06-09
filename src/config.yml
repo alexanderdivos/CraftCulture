@@ -22,5 +22,5 @@ bots:
   work-area: 100
   log-activity: false
   goals:
-  - 64;WOOD
+  - 64;LOG
   - 64;COBBLESTONE

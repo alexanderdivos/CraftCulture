@@ -9,6 +9,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -45,6 +46,16 @@ public class BotListener implements Listener {
 						bot.spawn(e.getPlayer().getLocation(), e.getClickedBlock());
 					}
 				}
+			}
+		}
+	}
+	
+	@EventHandler
+	public void openInventory(PlayerInteractEntityEvent e) {
+		if (e.getRightClicked() instanceof LivingEntity) {
+			if (CraftCulture.isBot((LivingEntity) e.getRightClicked())) {
+				e.setCancelled(true);
+				e.getPlayer().openInventory(CraftCulture.getBot((LivingEntity) e.getRightClicked()).getInventory());
 			}
 		}
 	}

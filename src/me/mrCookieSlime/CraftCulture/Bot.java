@@ -40,6 +40,7 @@ public class Bot {
 	Inventory inventory;
 	List<Goal> goals;
 	Map<UUID, Integer> playerReputation;
+	List<UUID> knownPlayers;
 	List<UUID> blacklist;
 	
 	List<ItemStack> supply;
@@ -84,7 +85,7 @@ public class Bot {
 		for (String mission: new Config(new File("plugins/CraftCulture/config.yml")).getStringList("bots.goals")) {
 			this.goals.add(new Goal(Material.getMaterial(mission.split(";")[1]), Integer.parseInt(mission.split(";")[0])));
 		}
-		Landscape.mapOut(l, 40);
+		Landscape.mapOut(l, 20);
 		CraftCulture.bots.add(this);
 	}
 	
@@ -214,5 +215,38 @@ public class Bot {
 			giveItem(drop);
 		}
 		BlockBreaker.nullify(b);
+	}
+	
+	public Inventory getInventory() {
+		return this.inventory;
+	}
+	
+	public void saveToFile(File backup) {
+		Config cfg = new Config(backup);
+		cfg.setValue("Name", this.name);
+		cfg.setValue("Location.X", this.l.getX());
+		cfg.setValue("Location.Y", this.l.getY());
+		cfg.setValue("Location.Z", this.l.getZ());
+		cfg.setValue("Location.world", this.l.getWorld().getName());
+		cfg.setValue("Origin.X", this.origin.getX());
+		cfg.setValue("Origin.Y", this.origin.getY());
+		cfg.setValue("Origin.Z", this.origin.getZ());
+		cfg.setValue("Origin.world", this.origin.getWorld().getName());
+		for (int i = 0; i < this.chests.size(); i++) {
+			cfg.setValue("Chest." + i + ".Location.X", this.chests.get(i).getLocation().getX());
+			cfg.setValue("Chest." + i + ".Location.Y", this.chests.get(i).getLocation().getY());
+			cfg.setValue("Chest." + i + ".Location.Z", this.chests.get(i).getLocation().getZ());
+			cfg.setValue("Chest." + i + ".Location.world", this.chests.get(i).getLocation().getWorld().getName());
+		}
+		for (int i = 0; i < this.inventory.getContents().length; i++) {
+			cfg.setValue("Inventory." + i, this.inventory.getContents()[i]);
+		}
+		for (int i = 0; i < this.goals.size(); i++) {
+			cfg.setValue("Goals." + i, this.goals.get(i).toString());
+		}
+		for (UUID uuid: knownPlayers) {
+			cfg.setValue("Players.Reputation." + uuid, this.playerReputation.get(uuid));
+		}
+		cfg.setValue("Players.Blacklist", this.blacklist);
 	}
 }

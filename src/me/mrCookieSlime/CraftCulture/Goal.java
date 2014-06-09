@@ -19,5 +19,10 @@ public class Goal {
 	public int getAmount() {
 		return this.amount;
 	}
+	
+	@Override
+	public String toString() {
+		return this.getAmount() + ";" + this.getType().toString();
+	}
 
 }
