@@ -15,6 +15,7 @@ names:
 - Eric
 - Toby
 - George
+- Matthew
 messages:
   chat: '<%name%> %message%'
   ask-item: 'Has anyone got %amount% %item%?'
